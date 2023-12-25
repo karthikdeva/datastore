@@ -43,10 +43,7 @@
 <div id="content-main">
   {% block object-tools %}
   <ul class="object-tools">
-    <li>
-      <a href="{% url 'import_from_google_sheets' %}" class="addlink" id="import-google-sheet-button">Import from Google
-        Sheet</a>
-    </li>
+
     {% block object-tools-items %}
     {% change_list_object_tools %}
     {% endblock %}
