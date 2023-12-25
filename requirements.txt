@@ -1,0 +1,17 @@
+livesync
+django
+waffle
+google-api-python-client
+google-auth
+graphene
+djoser
+django-sass
+django-admin-interface
+django-filter
+django-cors-headers
+django-rest-auth
+djangorestframework-oauth
+djangorestframework_simplejwt
+django-currentuser
+django-livesync
+numpy

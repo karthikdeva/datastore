@@ -1,0 +1,100 @@
+Metadata-Version: 2.1
+Name: LiveSync
+Version: 0.3.0
+Summary: Repeatedly synchronize local workspace with a (slow) remote machine
+Home-page: https://github.com/zauberzeug/livesync
+Author: Zauberzeug GmbH
+Author-email: info@zauberzeug.com
+License: MIT
+Keywords: sync remote watch filesystem development deploy live hot reload
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pathspec
+Requires-Dist: pyjson5
+Requires-Dist: watchfiles
+
+# LiveSync
+
+Repeatedly synchronize local workspace with a (slow) remote machine.
+It is available as [PyPI package](https://pypi.org/project/livesync/) and hosted on [GitHub](https://github.com/zauberzeug/livesync).
+
+[![PyPI version](https://badge.fury.io/py/livesync.svg)](https://pypi.org/project/livesync/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/livesync)](https://pypi.org/project/livesync/)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/zauberzeug/livesync)](https://github.com/zauberzeug/livesync/graphs/commit-activity)
+[![GitHub issues](https://img.shields.io/github/issues/zauberzeug/livesync)](https://github.com/zauberzeug/livesync/issues)
+[![GitHub license](https://img.shields.io/github/license/zauberzeug/livesync)](https://github.com/zauberzeug/livesync/blob/main/LICENSE)
+
+## Use Case
+
+[VS Code Remote Development](https://code.visualstudio.com/docs/remote/remote-overview) and similar tools are great as long as your remote machine is powerful enough.
+But if your target is a Raspberry Pi, Jetson Nano/Xavier/Orin, Beagle Board or similar, it feels like coding in jelly.
+Especially if you run powerful extensions like Pylance.
+LiveSync solves this by watching your code for changes and just copying the modifications to the slow remote machine.
+It works best if you have some kind of reload mechanism in place on the target ([NiceGUI](https://nicegui.io), [FastAPI](https://fastapi.tiangolo.com/) or [Flask](https://flask.palletsprojects.com/) for example).
+
+## Usage
+
+```bash
+livesync <source> <username>@<host>
+```
+
+LiveSync uses rsync (SSH) to copy the files, so the `<username>@<host>` must be accessible via SSH (ideally by key, not password or passphrase, because it will be called over and over).
+
+Press `CTRL-C` to abort the synchronization.
+
+Positional arguments:
+
+- `<source>`
+  local folder or VSCode workspace file
+- `<username>@<host>`
+  target user and host (e.g. username@hostname)
+
+Options:
+
+- `--target-root TARGET_ROOT`
+  subfolder on target to synchronize to (default: "")
+- `--target-port TARGET_PORT`
+  SSH port on target (default: 22)
+- `--on-change ON_CHANGE`
+  command to be executed on remote host after any file change (default: None)
+- `--mutex-interval MUTEX_INTERVAL`
+  interval in which mutex is updated (default: 10 seconds)
+
+### Notes
+
+- We suggest you have some auto-reloading in place on the (slow) target machine, like [NiceGUI](https://nicegui.io).
+- Only one user per target host should run LiveSync at a time. Therefore LiveSync provides a mutex mechanism.
+- You can create a `.syncignore` file in any source directory to skip additional files and directories from syncing.
+- If a `.syncignore` file doesn't exist, it is automatically created containing `.git/`, `__pycache__/`, `.DS_Store`, `*.tmp`, and `.env`.
+- If you pass a VSCode workspace file as `source`, LiveSync will synchronize each directory listed in the `folders` section.
+
+## Installation
+
+```bash
+python3 -m pip install livesync
+```
+
+## Development
+
+For development we suggest to use the following instructions instead of the normal pip installation:
+
+```bash
+git clone git@github.com:zauberzeug/livesync.git
+cd livesync
+python3 -m pip uninstall livesync # remove previous installed version
+python3 -m pip install -e .
+```
+
+Now you can change the code and call the `livesync` command from your `$PATH` variable with the modified code.
+
+## Testing
+
+We have build a small testing infrastructure with two docker containers.
+See [tests/README.md](https://github.com/zauberzeug/livesync/blob/main/tests/README.md) for details.
+
+## Releases
+
+Just create and push a new tag with the new version name (v0.2.1 for example).
+After a successful build a new release will be created.
+This should be edited to describe the changes in the release notes.
